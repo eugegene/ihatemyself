@@ -1,0 +1,20 @@
+@import 'tailwindcss';
+
+@theme {
+	--color-bkg-main: #16161c;
+	--color-bkg-header: #24252e;
+
+	--color-text-main: #ffffff;
+	--color-text-muted: #9999a1;
+
+	--color-brand-accent: #ff3d5e;
+	--color-brand-hover: #e03653;
+
+	--font-sans: 'Inter', 'Segoe UI', 'Roboto', 'sans-serif';
+}
+
+body {
+	background-color: var(--color-bkg-main);
+	color: var(--color-text-main);
+	font-family: var(--font-sans);
+}
