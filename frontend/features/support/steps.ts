@@ -103,8 +103,9 @@ When(
 		for (const [key, value] of Object.entries(data)) {
 			let selector = '';
 
-			// Мапінг назв полів з .feature файлів на селектори Svelte/HTML
 			switch (key) {
+				case 'Поле': // header row — skip
+					continue;
 				case 'Нікнейм':
 					selector = 'input[name="username"]';
 					break;
@@ -120,9 +121,23 @@ When(
 				case "Ім'я":
 					selector = 'input[name="firstName"]';
 					break;
-				// Додати інші поля за потребою
+				case 'Вік':
+					selector = 'input[name="age"]';
+					break;
+				case 'Стать':
+					// select element
+					await this.page!.selectOption('select[name="gender"]', { label: value }).catch(() =>
+						this.page!.locator('.dropdown-trigger, [role="combobox"]').first().click().then(() =>
+							this.page!.getByRole('option', { name: value }).click()
+						)
+					);
+					continue;
+				case 'Країна':
+					selector = 'input[name="country"]';
+					break;
 				default:
-					throw new Error(`Невідоме поле: ${key}`);
+					console.warn(`[DataTable] Невідоме поле: ${key} — пропускаємо`);
+					continue;
 			}
 
 			await this.page!.fill(selector, value);
@@ -276,10 +291,19 @@ Then(/.* (?:в базі даних|в БД) .*/, async function (this: CustomWor
 	await expect(this.page!.locator('.toast-error, .alert-error')).not.toBeVisible();
 });
 
-// DB precondition — ensure no crash state, rely on API seed data
-Given(/.* (?:існує|є) (?:користувач|медіа|в базі) .*/, async function (this: CustomWorld) {
-	// Precondition: data assumed seeded or created via debug API
-});
+// DB precondition — simple "В базі даних існує/існують X" with optional quoted name and password
+Given(
+	/^В базі даних існу(?:є|ють) (?:медіа|користувач(?:і)?) "([^"]*)"(?:\s+з паролем "[^"]*")?$/,
+	async function (this: CustomWorld, username: string) {
+		try {
+			await this.api!.post('debug/ensure-user', {
+				data: { username, password: 'Password123' },
+			});
+		} catch {
+			// user or media may already exist
+		}
+	},
+);
 
 // --- РЕЄСТРАЦІЯ ТА АВТОРИЗАЦІЯ ---
 

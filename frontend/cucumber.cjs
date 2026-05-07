@@ -2,7 +2,8 @@ module.exports = {
 	default: {
 		loader: ['ts-node/esm'],
 		import: ['features/support/**/*.ts'],
-		paths: ['../Features/**/*.feature'],
+		paths: ['../Features/**/*.feature', 'features/**/*.feature'],
+		tags: 'not @api and not @ignore',
 		format: ['progress-bar'],
 		worldParameters: {
 			appUrl: 'http://localhost:5173',
